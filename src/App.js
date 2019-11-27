@@ -1,16 +1,20 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
 import Navbar from "./component/layout/Navbar";
+import About from "./component/pages/About";
 import Search from "./component/Search";
 import LineChart from "./component/chart/LineChart";
-
+import ShowCase from "./component/layout/ShowCase";
 import AiModule from "./component/ai/AiModule";
 import AiSearch from "./component/AiSearch";
+
 import axios from "axios";
 import Spinner from "react-bootstrap/Spinner";
 
 //import "bootstrap/dist/css/bootstrap.min.css";
 //import "bootswatch/dist/flatly/bootstrap.min.css";
-import "bootswatch/dist/flatly/bootstrap.min.css"; // Added this :boom:
+import "bootswatch/dist/darkly/bootstrap.min.css"; // Added this :boom:
 import "./App.css";
 
 const App = () => {
@@ -243,43 +247,59 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <Navbar />
-      <h5>ShowCase Goes Here</h5>
-      <Search onChange={onChange} onSubmit={onSubmit} symbol={stockSymbol} />
-      <div className="container">
-        <br />
-        <br />
+    <Router>
+      <Fragment className="App">
+        <Navbar />
+        <Switch>
+          <Route exact path="/" component={ShowCase} />
+          <Route
+            path="/features"
+            render={props => (
+              <Fragment>
+                <Search
+                  onChange={onChange}
+                  onSubmit={onSubmit}
+                  symbol={stockSymbol}
+                />
+                <div className="container">
+                  <br />
+                  <br />
 
-        {loading ? (
-          <div>
-            <Spinner animation="border" />
-            {/* <LineChart data={chartData} /> */}
-          </div>
-        ) : (
-          <Fragment>
-            <LineChart data={chartData} />
-            {/* <DoughnutChart data={chartData} /> */}
-          </Fragment>
-        )}
-      </div>
-      <br />
-      <br />
-
-      <h5>Machine Learning Part</h5>
-      <AiSearch onAiChange={onAiChange} onAiSubmit={enableAI} aiDay={aiDay} />
-      <div className="container">
-        {training ? (
-          <div>
-            <Spinner animation="border" />
-          </div>
-        ) : (
-          <Fragment>
-            <AiModule data={prediction} />
-          </Fragment>
-        )}
-      </div>
-    </div>
+                  {loading ? (
+                    <div>
+                      <Spinner animation="border" />
+                      {/* <LineChart data={chartData} /> */}
+                    </div>
+                  ) : (
+                    <LineChart data={chartData} />
+                  )}
+                </div>
+                <br />
+                <br />
+                <h4 className="text-center">AI Predictions</h4>
+                <AiSearch
+                  onAiChange={onAiChange}
+                  onAiSubmit={enableAI}
+                  aiDay={aiDay}
+                />
+                <div className="container">
+                  {training ? (
+                    <div>
+                      <Spinner animation="border" />
+                    </div>
+                  ) : (
+                    <Fragment>
+                      <AiModule data={prediction} />
+                    </Fragment>
+                  )}
+                </div>
+              </Fragment>
+            )}
+          />
+          <Route path="/about" component={About} />
+        </Switch>
+      </Fragment>
+    </Router>
   );
 };
 

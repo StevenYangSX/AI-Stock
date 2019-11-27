@@ -9,7 +9,7 @@ const AiSearch = ({ onAiSubmit, onAiChange, aiDay }) => {
           className="form-control"
           type="text"
           name="number"
-          placeholder="See prediction on next ... days"
+          placeholder="Please enter how many days of prediction you need"
           onChange={onAiChange}
         />
         <span classname="input-group-btn">

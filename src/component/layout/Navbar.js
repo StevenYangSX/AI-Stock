@@ -1,14 +1,15 @@
 import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
     <Fragment>
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a className="navbar-brand" href="/">
+        <Link className="navbar-brand" to="/">
           <i class="fab fa-buysellads"></i>
           <i class="fas fa-info-circle"></i>
           <i class="fas fa-chart-bar"></i> Stock Expert
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -23,15 +24,20 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse" id="navbarColor01">
           <ul className="navbar-nav mr-auto">
-            <li className="nav-item active">
-              <a className="nav-link" href="/">
+            <li className="nav-item">
+              <Link className="nav-link" to="/">
                 Home <span className="sr-only">(current)</span>
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/">
+              <Link className="nav-link" to="/features">
                 Features
-              </a>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/about">
+                About
+              </Link>
             </li>
           </ul>
         </div>

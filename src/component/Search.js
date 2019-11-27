@@ -9,7 +9,7 @@ const Search = ({ onSubmit, onChange, clearInput, symbol }) => {
           className="form-control"
           type="text"
           name="symbol"
-          placeholder="Stock symbol"
+          placeholder="Please search by Stock symbol"
           onChange={onChange}
         />
         <span classname="input-group-btn">

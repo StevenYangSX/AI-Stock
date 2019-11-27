@@ -3,7 +3,7 @@ import { Line } from "react-chartjs-2";
 const LineChart = props => {
   return (
     <div>
-      <h5>Line Chart goes here.</h5>
+      <h4 className="text-center">Trend of Last 90 Days</h4>
       <Line data={props.data} />
     </div>
   );
