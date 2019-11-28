@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React from "react";
 
 const AiSearch = ({ onAiSubmit, onAiChange, aiDay }) => {
   return (
@@ -12,7 +12,7 @@ const AiSearch = ({ onAiSubmit, onAiChange, aiDay }) => {
           placeholder="Please enter how many days of prediction you need"
           onChange={onAiChange}
         />
-        <span classname="input-group-btn">
+        <span className="input-group-btn">
           <input
             type="submit"
             className="btn btn-outline-primary"

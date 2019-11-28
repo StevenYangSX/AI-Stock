@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React from "react";
 
 const Search = ({ onSubmit, onChange, clearInput, symbol }) => {
   return (
@@ -12,7 +12,7 @@ const Search = ({ onSubmit, onChange, clearInput, symbol }) => {
           placeholder="Please search by Stock symbol"
           onChange={onChange}
         />
-        <span classname="input-group-btn">
+        <span className="input-group-btn">
           <input
             type="submit"
             className="btn btn-outline-primary"

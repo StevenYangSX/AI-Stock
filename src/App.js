@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, Fragment } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Navbar from "./component/layout/Navbar";
@@ -8,43 +8,31 @@ import LineChart from "./component/chart/LineChart";
 import ShowCase from "./component/layout/ShowCase";
 import AiModule from "./component/ai/AiModule";
 import AiSearch from "./component/AiSearch";
+import Badge from "./component/layout/Badge";
 
 import axios from "axios";
 import Spinner from "react-bootstrap/Spinner";
 
-//import "bootstrap/dist/css/bootstrap.min.css";
-//import "bootswatch/dist/flatly/bootstrap.min.css";
 import "bootswatch/dist/darkly/bootstrap.min.css"; // Added this :boom:
 import "./App.css";
 
 const App = () => {
   //useEffect(() => onSubmit, []);
-
+  //states are here
   const [loading, setLoading] = useState(false);
-
   const [stockSymbol, setStockSymbol] = useState("");
   const [stockData, setStockData] = useState([]);
-
   const [chartData, setChartData] = useState({});
-
   const [prediction, setPrediction] = useState([]);
   const [training, setTraining] = useState(false);
   const [aiDay, setAiDay] = useState("");
 
-  //const []
-  // useEffect(() => {
-  //   console.log("useEffect has been called!");
-  //   // if (training) {
-  //   //   aiCalculation();
-  //   // }
-  // }, [log]);
+  //function for ai calculation
   const aiCalculation = () => {
+    //get brain running
     const brain = require("brain.js");
-
     const scaleDown = step => {
       // normalize
-      console.log("check sacleDown function", Math.min(...open));
-      //console.log("check input value: ", step.open);
       return {
         open: parseFloat(step["1. open"]) / Math.min(...open),
         high: parseFloat(step["2. high"]) / Math.min(...high),
@@ -52,7 +40,6 @@ const App = () => {
         close: parseFloat(step["4. close"]) / Math.min(...close)
       };
     };
-
     const scaleUp = step => {
       // denormalize
       return {
@@ -63,50 +50,57 @@ const App = () => {
       };
     };
     //have to get rawData here.
-    const rawData = Object.values(stockData[0]["Time Series (Daily)"]);
-    var open = [];
-    var high = [];
-    var low = [];
-    var close = [];
+    if (stockData[0] === undefined) {
+      alert("No Stock To Be Predicted.");
+      setTraining(false);
+    } else {
+      if (stockData.length !== 1) {
+        alert("Please make sure only one stock left");
+        setTraining(false);
+      } else {
+        const rawData = Object.values(stockData[0]["Time Series (Daily)"]);
+        var open = [];
+        var high = [];
+        var low = [];
+        var close = [];
 
-    rawData.forEach(element => {
-      open.push(parseFloat(element["1. open"]));
-      high.push(parseFloat(element["2. high"]));
-      low.push(parseFloat(element["3. low"]));
-      close.push(parseFloat(element["4. close"]));
-    });
+        rawData.forEach(element => {
+          open.push(parseFloat(element["1. open"]));
+          high.push(parseFloat(element["2. high"]));
+          low.push(parseFloat(element["3. low"]));
+          close.push(parseFloat(element["4. close"]));
+        });
 
-    //
+        //data is ready to be trained.
+        const scaledData = rawData.map(scaleDown);
+        //console.log(scaledData);
+        const trainingData = [scaledData];
+        const net = new brain.recurrent.LSTMTimeStep({
+          inputSize: 4,
+          hiddenLayers: [10, 10],
+          outputSize: 4
+        });
+        net.train(trainingData, {
+          learningRate: 0.005,
+          errorThresh: 0.04,
+          log: stats => console.log(stats)
+        });
 
-    const scaledData = rawData.map(scaleDown);
-    console.log(scaledData);
-    const trainingData = [scaledData];
-
-    const net = new brain.recurrent.LSTMTimeStep({
-      inputSize: 4,
-      hiddenLayers: [10, 10],
-      outputSize: 4
-    });
-
-    net.train(trainingData, {
-      learningRate: 0.005,
-      errorThresh: 0.04,
-      log: stats => console.log(stats)
-    });
-
-    //console.log(net.forecast(trainingData, 1).map(scaleUp));
-    setPrediction(
-      ...prediction,
-      net.forecast(trainingData, parseInt(aiDay)).map(scaleUp)
-    );
-    setTraining(false);
+        //console.log(net.forecast(trainingData, 1).map(scaleUp));
+        setPrediction(
+          ...prediction,
+          net.forecast(trainingData, parseInt(aiDay)).map(scaleUp)
+        );
+        setTraining(false);
+      }
+    }
   };
 
   const enableAI = async e => {
     e.preventDefault();
     setTimeout(() => aiCalculation(), 500);
     setTraining(true);
-    console.log("button clicked.");
+    // console.log("button clicked.");
     //aiCalculation();
     setAiDay("");
   };
@@ -160,7 +154,7 @@ const App = () => {
         );
       }
     }
-    console.log("check legnet array ====>", legendArr);
+    // console.log("check legnet array ====>", legendArr);
 
     const tempDataSetsElement1 = {
       data: dataOpen.reverse(),
@@ -224,15 +218,16 @@ const App = () => {
   const onSubmit = async e => {
     e.preventDefault();
     //reputation checking
-    console.log(checkRepeat(stockSymbol, stockData));
+    //console.log(checkRepeat(stockSymbol, stockData));
     if (checkRepeat(stockSymbol, stockData)) {
       alert("you already got this stock's data");
+      setStockSymbol("");
     } else {
       setLoading(true);
       const res = await axios.get(
         `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockSymbol}&apikey=IVKHCGATRAADPEQK`
       );
-      console.log("get data:", res);
+      //console.log("get data:", res);
       if (res.data.hasOwnProperty("Error Message")) {
         alert("Please input a valid stock symbol.");
         setLoading(false);
@@ -246,9 +241,22 @@ const App = () => {
     }
   };
 
+  const deleteBadge = stockToBeDeleted => {
+    setStockData(
+      stockData.filter(
+        element => element["Meta Data"]["2. Symbol"] !== stockToBeDeleted
+      )
+    );
+    setChartData({
+      //datasets is an array of object contains data arr.
+      datasets: chartData.datasets.filter(
+        element => !element.label.includes(stockToBeDeleted)
+      )
+    });
+  };
   return (
     <Router>
-      <Fragment className="App">
+      <div className="App">
         <Navbar />
         <Switch>
           <Route exact path="/" component={ShowCase} />
@@ -256,11 +264,25 @@ const App = () => {
             path="/features"
             render={props => (
               <Fragment>
-                <Search
-                  onChange={onChange}
-                  onSubmit={onSubmit}
-                  symbol={stockSymbol}
-                />
+                <br />
+                <h4 className="text-center">Stock Trends of Last 90 Days</h4>
+                <p className="text-center text-warning">
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://www.nyse.com/listings_directory/stock"
+                  >
+                    Stock Symbol Reference
+                  </a>
+                </p>
+                <div className="container">
+                  <Search
+                    onChange={onChange}
+                    onSubmit={onSubmit}
+                    symbol={stockSymbol}
+                  />
+                </div>
+
                 <div className="container">
                   <br />
                   <br />
@@ -271,17 +293,39 @@ const App = () => {
                       {/* <LineChart data={chartData} /> */}
                     </div>
                   ) : (
-                    <LineChart data={chartData} />
+                    <div>
+                      {stockData.map((element, index) => {
+                        return (
+                          <Badge
+                            key={index}
+                            stockName={element["Meta Data"]["2. Symbol"]}
+                            onClick={() =>
+                              deleteBadge(element["Meta Data"]["2. Symbol"])
+                            }
+                            index={index}
+                          />
+                        );
+                      })}
+                      <LineChart data={chartData} />
+                    </div>
                   )}
                 </div>
                 <br />
                 <br />
                 <h4 className="text-center">AI Predictions</h4>
-                <AiSearch
-                  onAiChange={onAiChange}
-                  onAiSubmit={enableAI}
-                  aiDay={aiDay}
-                />
+                <p className="text-center text-warning">
+                  (Please make sure only ONE stock left in the chart above. Keep
+                  days under 5 for better performance and accuracy)
+                </p>
+
+                <br />
+                <div className="container">
+                  <AiSearch
+                    onAiChange={onAiChange}
+                    onAiSubmit={enableAI}
+                    aiDay={aiDay}
+                  />
+                </div>
                 <div className="container">
                   {training ? (
                     <div>
@@ -298,7 +342,7 @@ const App = () => {
           />
           <Route path="/about" component={About} />
         </Switch>
-      </Fragment>
+      </div>
     </Router>
   );
 };

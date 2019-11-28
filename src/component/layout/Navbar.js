@@ -6,9 +6,9 @@ const Navbar = () => {
     <Fragment>
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
         <Link className="navbar-brand" to="/">
-          <i class="fab fa-buysellads"></i>
-          <i class="fas fa-info-circle"></i>
-          <i class="fas fa-chart-bar"></i> Stock Expert
+          <i className="fab fa-buysellads"></i>
+          <i className="fas fa-info-circle"></i>
+          <i className="fas fa-chart-bar"></i> Stock Expert
         </Link>
         <button
           className="navbar-toggler"
@@ -30,9 +30,9 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/features">
+              <a className="nav-link" href="/features">
                 Features
-              </Link>
+              </a>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/about">
